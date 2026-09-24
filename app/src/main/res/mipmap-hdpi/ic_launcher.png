@@ -1,0 +1,5 @@
+1. Right-click res folder → New → Image Asset
+2. Icon type: Launcher Icons (Adaptive and Legacy)
+3. Foreground Layer: Vector asset (select clock symbol)
+4. Background: Solid color #6d4aff
+5. Apply on all densities (hdpi, xhdpi, xxhdpi, xxxhdpi)

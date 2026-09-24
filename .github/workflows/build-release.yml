@@ -9,6 +9,7 @@ on:
 env:
   APP_VERSION_NAME: "1.0.0"
   APP_VERSION_CODE: 1
+  GRADLE_OPTS: "-Xmx4096m -XX:MaxMetaspaceSize=512m"
 
 jobs:
   build:
@@ -28,26 +29,32 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
-
-      - name: Build APK with Gradle Wrapper
+        with:
+          add-job-summary: always
+          cache-disabled: false
+          
+      - name: Build APK
         run: |
-          # Create gradlew if missing
-          if [ ! -f gradlew ]; then
-            gradle wrapper
-          fi
-          chmod +x gradlew
-          ./gradlew assembleDebug --stacktrace
-
+          echo "Building APK..."
+          ./gradlew assembleDebug --stacktrace --warning-mode all
+          
       - name: Upload APK Artifact
+        if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: StandbyClock-Debug
+          name: StandbyClock-Debug-${{ github.sha }}
           path: app/build/outputs/apk/debug/app-debug.apk
           retention-days: 30
-
-      - name: Upload build logs
+          
+      - name: Upload Build Logs
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: build-logs
-          path: app/build/reports/
+          name: build-logs-${{ github.sha }}
+          path: |
+            app/build/reports/
+            app/build/outputs/
+
+      - name: Success Notification
+        if: success()
+        run: echo "✅ Build completed successfully!"
